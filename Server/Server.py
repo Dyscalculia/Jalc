@@ -2,6 +2,7 @@
 import SocketServer
 import json
 import time
+import re
 
 """
 Variables and functions that must be used by all the ClientHandler objects
@@ -15,14 +16,23 @@ def register_clientHandler(clienthandler):
     client_handlers.append(clienthandler)
 
 def handle_login(clienthandler, payload):
-    clienthandler.username = payload['content']
+    usrname = payload['content']
+    clienthandler.username = usrname
+    if not re.match("^[\w\d]+$", usrname):
+        send_info(clienthandler, "Username not valid!")
+        return
     clienthandler.is_logged_in = True
+    register_clientHandler(clienthandler)
     send_info(clienthandler, "Login successful")
     send_history(clienthandler)
 
 def handle_logout(clienthandler, payload):
     clienthandler.username = "not logged in"
     clienthandler.is_logged_in = False
+    try:
+        client_handlers.remove(clienthandler)
+    except:
+        print "Cannot remove client handler"
     send_info(clienthandler, "Logout successful")
 
 def handle_msg(clienthandler, payload):
@@ -43,7 +53,11 @@ def send_global_msg(sender, content):
     msg = format_msg(sender, content)
     broadcast_msgs += " " + msg
     for clienthandler in client_handlers:
-        clienthandler.send_msg(msg)
+        try:
+            clienthandler.send_msg(msg)
+        except:
+            client_handlers.remove(clienthandler)
+
 
 def format_msg(sender, content):
     return json.dumps({"timestamp": int(time.time()), "sender": sender, "response": "message", "content": content})
@@ -96,7 +110,6 @@ class ClientHandler(SocketServer.BaseRequestHandler):
 
         self.is_logged_in = False
         self.username = "not logged in"
-        register_clientHandler(self)
 
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
@@ -106,7 +119,11 @@ class ClientHandler(SocketServer.BaseRequestHandler):
 
         # Loop that listens for messages from the client
         while True:
-            received_string = self.connection.recv(4096)
+            try:
+                received_string = self.connection.recv(4096)
+            except:
+                handle_logout(self, "")
+                return
             for json_msg in received_string.split("}"):
                 if len(json_msg) > 5:
                     handle_message(self, json_msg + "}", self.is_logged_in)
@@ -132,7 +149,7 @@ if __name__ == "__main__":
 
     No alterations are necessary
     """
-    HOST, PORT = 'localhost', 9998
+    HOST, PORT = '78.91.31.81', 9998
     print 'Server running...'
 
     # Set up and initiate the TCP server

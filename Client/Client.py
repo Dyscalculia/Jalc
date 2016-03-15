@@ -28,10 +28,6 @@ class Client:
         self.connection.connect((self.host, self.server_port))
         self.receiver = MessageReceiver(self, self.connection)
         self.receiver.start()
-        #self.login("lol")
-        #self.send_names_request()
-        #self.send_msg("hei")
-        #self.send_help_request()
 
     def login(self, username):
         payload = json.dumps({"request": "login", "content": username})
@@ -75,7 +71,15 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('localhost', 9998)
+    client = Client('78.91.31.81', 9998)
+
+    print "Welcome to JALC - The future is NOW!!"
+    print "Commands:"
+    print "  * login <username>"
+    print "  * logout"
+    print "  * send <msg>"
+    print "  * names"
+    print "  * help"
 
     while True:
         command = raw_input("")
@@ -89,3 +93,5 @@ if __name__ == '__main__':
             client.send_names_request()
         elif command.startswith("help"):
             client.send_help_request()
+        else:
+            client.send_msg(command)
