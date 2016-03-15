@@ -19,7 +19,7 @@ def handle_login(clienthandler, payload):
     usrname = payload['content']
     clienthandler.username = usrname
     if not re.match("^[\w\d]+$", usrname):
-        send_info(clienthandler, "Username not valid!")
+        send_error(clienthandler, "Username not valid!")
         return
     clienthandler.is_logged_in = True
     register_clientHandler(clienthandler)
@@ -46,6 +46,10 @@ def handle_help(clienthandler, payload):
 
 def send_info(clienthandler, content):
     payload = json.dumps({"timestamp": int(time.time()), "sender": "server", "response": "info", "content": content})
+    clienthandler.send_msg(payload)
+
+def send_error(clienthandler, content):
+    payload = json.dumps({"timestamp": int(time.time()), "sender": "server", "response": "error", "content": content})
     clienthandler.send_msg(payload)
 
 def send_global_msg(sender, content):
