@@ -55,12 +55,12 @@ def send_history(clienthandler):
     payload = json.dumps({"timestamp": int(time.time()), "sender": "server", "response": "history", "content": broadcast_msgs})
     clienthandler.send_msg(payload)
 
-def send_names(clienthandler):
+def send_names(requesting_clienthandler):
     all_usernames = ""
     for clienthandler in client_handlers:
         all_usernames += clienthandler.username + "\n"
     payload = json.dumps({"timestamp": int(time.time()), "sender": "server", "response": "info", "content": all_usernames})
-    clienthandler.send_msg(payload)
+    requesting_clienthandler.send_msg(payload)
 
 possible_requests = {
     'login': handle_login,
