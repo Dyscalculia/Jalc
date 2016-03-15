@@ -9,7 +9,7 @@ must be written here (e.g. a dictionary for connected clients)
 """
 
 client_handlers = []
-broadcast_msgs = json.dumps({"timestamp": int(time.time()), "sender": "testTest", "response": "message", "content": "test543"})
+broadcast_msgs = ""
 
 def register_clientHandler(clienthandler):
     client_handlers.append(clienthandler)
