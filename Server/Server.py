@@ -32,7 +32,7 @@ def handle_names(clienthandler, payload):
     send_names(clienthandler)
 
 def handle_help(clienthandler, payload):
-    send_info(clienthandler, "TODO: skriv hjelp!!")
+    send_info(clienthandler, "Allowed requests: login<username>, logout, msg<message>, names, help.")
 
 def send_info(clienthandler, content):
     payload = json.dumps({"timestamp": int(time.time()), "sender": "server", "response": "info", "content": content})
@@ -71,10 +71,10 @@ possible_requests = {
 }
 
 def handle_message(clienthandler, payload, loggedin):
-    if not loggedin:
+    payload = json.loads(payload) # decode the JSON object
+    if not loggedin and not (payload['request'] == "login" or payload['request'] == "help"):
         send_info(clienthandler, "Not logged in")
         return
-    payload = json.loads(payload) # decode the JSON object
     if payload['request'] in possible_requests:
         possible_requests[payload['request']](clienthandler, payload)
     else:
